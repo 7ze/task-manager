@@ -1,10 +1,9 @@
 {
   "name": "task-manager",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
-  "private": true,
-  "license": "UNLICENSED",
+  "description": "A simple task-manager application",
+  "author": "The_philosopher",
+  "license": "MIT License",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
