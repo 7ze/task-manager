@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A simple task-manager application",
   "author": "The_philosopher",
-  "license": "MIT License",
+  "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -23,6 +23,8 @@
     "@nestjs/common": "^7.6.13",
     "@nestjs/core": "^7.6.13",
     "@nestjs/platform-express": "^7.6.13",
+    "class-transformer": "^0.4.0",
+    "class-validator": "^0.13.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.6",
