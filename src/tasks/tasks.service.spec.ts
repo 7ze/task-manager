@@ -36,13 +36,12 @@ describe('TasksService', () => {
       const ListOftasks = 'list_of_tasks';
       taskRepository.getTasks.mockResolvedValue(ListOftasks);
 
-      expect(taskRepository.getTasks).not.toHaveBeenCalled();
-
       const getTasksfilterDto: GetTasksFilterDto = {
         status: TaskStatus.IN_PROGRESS,
         search: 'some_query',
       };
 
+      expect(taskRepository.getTasks).not.toHaveBeenCalled();
       const result = await tasksService.getTasks(getTasksfilterDto, mockUser);
       expect(taskRepository.getTasks).toHaveBeenCalled();
       expect(result).toEqual(ListOftasks);
@@ -55,11 +54,10 @@ describe('TasksService', () => {
       taskRepository.findOne.mockResolvedValue(task);
 
       const result = await tasksService.getTaskById(1, mockUser);
-      expect(result).toEqual(task);
-
       expect(taskRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1, userId: mockUser.id },
       });
+      expect(result).toEqual(task);
     });
 
     it('throws an error when task is not found', () => {
