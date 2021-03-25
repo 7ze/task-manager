@@ -33,11 +33,8 @@ describe('TasksService', () => {
 
   describe('getTasks', () => {
     it('gets all tasks from the repository', async () => {
-      const mockTasks = [
-        { title: 'foo', description: 'bar' },
-        { title: 'bar', description: 'baz' },
-      ];
-      taskRepository.getTasks.mockResolvedValue(mockTasks);
+      const ListOftasks = 'list_of_tasks';
+      taskRepository.getTasks.mockResolvedValue(ListOftasks);
 
       expect(taskRepository.getTasks).not.toHaveBeenCalled();
 
@@ -48,20 +45,17 @@ describe('TasksService', () => {
 
       const result = await tasksService.getTasks(getTasksfilterDto, mockUser);
       expect(taskRepository.getTasks).toHaveBeenCalled();
-      expect(result).toEqual(mockTasks);
+      expect(result).toEqual(ListOftasks);
     });
   });
 
   describe('getTaskById', () => {
     it('calls taskRepository.findOne() and successfully retrieves and returns the task', async () => {
-      const mockTask = {
-        title: 'test',
-        description: 'test',
-      };
-      taskRepository.findOne.mockResolvedValue(mockTask);
+      const task = 'mock_task';
+      taskRepository.findOne.mockResolvedValue(task);
 
       const result = await tasksService.getTaskById(1, mockUser);
-      expect(result).toEqual(mockTask);
+      expect(result).toEqual(task);
 
       expect(taskRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1, userId: mockUser.id },
@@ -77,14 +71,9 @@ describe('TasksService', () => {
   });
 
   describe('createTask', () => {
+    const createdTask = 'created_task';
     it('creates a new task', async () => {
-      const expectedResult = {
-        title: 'test',
-        description: 'test',
-        status: TaskStatus.OPEN,
-        user: mockUser,
-      };
-      taskRepository.createTask.mockResolvedValue(expectedResult);
+      taskRepository.createTask.mockResolvedValue(createdTask);
 
       const createTaskDto: CreateTaskDto = {
         title: 'test',
@@ -92,8 +81,12 @@ describe('TasksService', () => {
       };
 
       expect(taskRepository.createTask).not.toHaveBeenCalled();
-      const task = await tasksService.createTask(createTaskDto, mockUser);
-      expect(task).toEqual(expectedResult);
+      const result = await tasksService.createTask(createTaskDto, mockUser);
+      expect(taskRepository.createTask).toHaveBeenCalledWith(
+        createTaskDto,
+        mockUser,
+      );
+      expect(result).toEqual(createdTask);
     });
   });
 });
