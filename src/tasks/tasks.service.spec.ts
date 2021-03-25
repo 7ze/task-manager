@@ -13,6 +13,7 @@ const mockTaskRepository = () => ({
   getTasks: jest.fn(),
   findOne: jest.fn(),
   createTask: jest.fn(),
+  delete: jest.fn(),
 });
 
 describe('TasksService', () => {
@@ -60,7 +61,7 @@ describe('TasksService', () => {
       expect(result).toEqual(task);
     });
 
-    it('throws an error when task is not found', () => {
+    it('throws a NotFoundException error when task is not found', () => {
       taskRepository.findOne.mockResolvedValue(null);
       expect(tasksService.getTaskById(1, mockUser)).rejects.toThrow(
         NotFoundException,
@@ -85,6 +86,32 @@ describe('TasksService', () => {
         mockUser,
       );
       expect(result).toEqual(createdTask);
+    });
+  });
+
+  describe('updateTask', () => {
+    it('updates task status', async () => {
+      // updates task status
+    });
+  });
+
+  describe('deleteTask', () => {
+    it('call taskRepository.delete() to delete a task', async () => {
+      taskRepository.delete.mockResolvedValue({ affected: 1 });
+      expect(taskRepository.delete).not.toHaveBeenCalled();
+      await tasksService.deleteTask(1, mockUser);
+      expect(taskRepository.delete).toHaveBeenCalledWith({
+        id: 1,
+        userId: mockUser.id,
+      });
+    });
+
+    it('throws a NotFoundException error when task is not found', async () => {
+      taskRepository.delete.mockResolvedValue({ affected: 0 });
+      expect(taskRepository.delete).not.toHaveBeenCalled();
+      expect(tasksService.deleteTask(1, mockUser)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });
