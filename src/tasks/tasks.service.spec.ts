@@ -36,7 +36,6 @@ describe('TasksService', () => {
     it('gets all tasks from the repository', async () => {
       const ListOftasks = 'list_of_tasks';
       taskRepository.getTasks.mockResolvedValue(ListOftasks);
-
       const getTasksfilterDto: GetTasksFilterDto = {
         status: TaskStatus.IN_PROGRESS,
         search: 'some_query',
@@ -73,7 +72,6 @@ describe('TasksService', () => {
     const createdTask = 'created_task';
     it('creates a new task', async () => {
       taskRepository.createTask.mockResolvedValue(createdTask);
-
       const createTaskDto: CreateTaskDto = {
         title: 'test',
         description: 'test',
@@ -91,13 +89,29 @@ describe('TasksService', () => {
 
   describe('updateTask', () => {
     it('updates task status', async () => {
-      // updates task status
+      const save = jest.fn().mockResolvedValue(true);
+      tasksService.getTaskById = jest.fn().mockResolvedValue({
+        save,
+        status: TaskStatus.OPEN,
+      });
+
+      expect(tasksService.getTaskById).not.toHaveBeenCalled();
+      const result = await tasksService.updateTask(
+        1,
+        TaskStatus.DONE,
+        mockUser,
+      );
+
+      expect(tasksService.getTaskById).toHaveBeenCalledWith(1, mockUser);
+      expect(save).toHaveBeenCalled();
+      expect(result.status).toEqual(TaskStatus.DONE);
     });
   });
 
   describe('deleteTask', () => {
     it('call taskRepository.delete() to delete a task', async () => {
       taskRepository.delete.mockResolvedValue({ affected: 1 });
+
       expect(taskRepository.delete).not.toHaveBeenCalled();
       await tasksService.deleteTask(1, mockUser);
       expect(taskRepository.delete).toHaveBeenCalledWith({
@@ -108,6 +122,7 @@ describe('TasksService', () => {
 
     it('throws a NotFoundException error when task is not found', async () => {
       taskRepository.delete.mockResolvedValue({ affected: 0 });
+
       expect(taskRepository.delete).not.toHaveBeenCalled();
       expect(tasksService.deleteTask(1, mockUser)).rejects.toThrow(
         NotFoundException,
