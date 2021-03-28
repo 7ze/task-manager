@@ -3,14 +3,19 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import * as bcrypt from 'bcrypt';
 import { DatabaseErrors } from 'src/utils/database-errors.enum';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
+import { User } from './user.entity';
 import { UserRepository } from './user.repository';
 
 const mockAuthCredentialsDto: AuthCredentialsDto = {
   username: 'mock_user',
   password: 'password',
 };
+
+jest.mock('bcrypt');
+const mocked_bcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
 
 describe('UserRepository', () => {
   let userRepository: UserRepository;
@@ -50,6 +55,50 @@ describe('UserRepository', () => {
       await expect(
         userRepository.signUp(mockAuthCredentialsDto),
       ).rejects.toThrow(InternalServerErrorException);
+    });
+  });
+
+  describe('validateUserPassword', () => {
+    let user: User;
+
+    beforeEach(() => {
+      userRepository.findOne = jest.fn();
+      user = new User();
+      user.username = 'mock_user';
+      user.password = 'password';
+    });
+
+    it('returns the username if validation is successful', async () => {
+      userRepository.findOne = jest.fn().mockResolvedValue(user);
+      mocked_bcrypt.compare.mockResolvedValue(true);
+      const result = await userRepository.validateUserPassword(
+        mockAuthCredentialsDto,
+      );
+      expect(userRepository.findOne).toHaveBeenCalled();
+      expect(bcrypt.compare).toHaveBeenCalled();
+      expect(result).toEqual('mock_user');
+    });
+
+    it('returns null if user not found', async () => {
+      userRepository.findOne = jest.fn().mockResolvedValue(undefined);
+      mocked_bcrypt.compare.mockResolvedValue(false);
+      const result = await userRepository.validateUserPassword(
+        mockAuthCredentialsDto,
+      );
+      expect(userRepository.findOne).toHaveBeenCalled();
+      expect(bcrypt.compare).toHaveBeenCalled();
+      expect(result).toEqual(null);
+    });
+
+    it('returns null if password is invalid', async () => {
+      userRepository.findOne = jest.fn().mockResolvedValue(user);
+      mocked_bcrypt.compare.mockResolvedValue(false);
+      const result = await userRepository.validateUserPassword(
+        mockAuthCredentialsDto,
+      );
+      expect(userRepository.findOne).toHaveBeenCalled();
+      expect(bcrypt.compare).toHaveBeenCalled();
+      expect(result).toEqual(null);
     });
   });
 });
