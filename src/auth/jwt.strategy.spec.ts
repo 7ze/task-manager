@@ -34,12 +34,12 @@ describe('JwtStrategy', () => {
       expect(userRepository.findOne).toBeCalledWith({ username: 'mock_user' });
       expect(result).toEqual(user);
     });
-  });
 
-  it('throws an unauthorized exception when user is not found', () => {
-    userRepository.findOne.mockResolvedValue(undefined);
-    expect(jwtStrategy.validate({ username: 'mock_user' })).rejects.toThrow(
-      UnauthorizedException,
-    );
+    it('throws an unauthorized exception when user is not found', () => {
+      userRepository.findOne.mockResolvedValue(undefined);
+      expect(jwtStrategy.validate({ username: 'mock_user' })).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
   });
 });
